@@ -1,0 +1,21 @@
+# API keys — NEVER commit
+config.json
+.streamlit/secrets.toml
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+*.egg-info/
+
+# IDE
+.idea/
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test artifacts
+.pytest_cache/
+key_candidates.txt

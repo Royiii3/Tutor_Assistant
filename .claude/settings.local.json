@@ -1,0 +1,28 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(.venv/Scripts/python -m pytest tests/ -v)",
+      "Bash(.venv/Scripts/python -c ' *)",
+      "Bash(timeout 30 .venv/Scripts/python test_messages.py)",
+      "Bash(timeout 60 .venv/Scripts/python test_messages.py)",
+      "Bash(.venv/Scripts/python -m pytest tests/ -q)",
+      "Bash(.venv/Scripts/python -c \"import py_compile; py_compile.compile\\('extract_key.py', doraise=True\\); print\\('OK'\\)\")",
+      "WebSearch",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:api.github.com)",
+      "Bash(python debug_commute.py)",
+      "Bash(python debug_push.py)",
+      "Bash(python debug_split.py)",
+      "Bash(python -c \"from web_app import app; print\\('Flask app OK'\\)\")",
+      "Bash(pip install *)",
+      "Bash(python -c \"from web_app import app; print\\('OK'\\)\")",
+      "Bash(python web_app.py)",
+      "Bash(python -c \"from streamlit_app import _load_config; cfg = _load_config\\(\\); print\\(f'OK: {cfg.my_address}, {cfg.amap_key[:8]}...'\\)\")",
+      "Bash(python -c ' *)",
+      "Bash(streamlit run *)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://127.0.0.1:8501)",
+      "Bash(STREAMLIT_SERVER_HEADLESS=true streamlit run streamlit_app.py --server.port 8501)",
+      "Bash(curl -s http://127.0.0.1:8501)"
+    ]
+  }
+}
