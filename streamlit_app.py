@@ -37,18 +37,45 @@ st.set_page_config(
 
 
 def _load_config():
-    """Load config from file, then override with Streamlit secrets if on cloud."""
+    """Load config from config.json (local) or st.secrets (cloud)."""
     config_path = Path(__file__).parent / "config.json"
-    with open(config_path, "r", encoding="utf-8") as f:
-        data = json.load(f)
 
-    # Override from Streamlit secrets (cloud deployment)
+    if config_path.exists():
+        with open(config_path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        # Override from Streamlit secrets if present
+        if hasattr(st, "secrets") and st.secrets:
+            for key in data:
+                if key in st.secrets:
+                    data[key] = st.secrets[key]
+        return UserConfig(**data)
+
+    # Cloud mode: build entirely from Streamlit secrets
     if hasattr(st, "secrets") and st.secrets:
-        for key in data:
-            if key in st.secrets:
-                data[key] = st.secrets[key]
+        secrets = dict(st.secrets)
+        return UserConfig(
+            my_address=secrets["my_address"],
+            my_coords=list(secrets["my_coords"]),
+            min_salary=int(secrets["min_salary"]),
+            subjects=list(secrets["subjects"]),
+            grades=list(secrets["grades"]),
+            max_commute_time=int(secrets["max_commute_time"]),
+            commute_mode=secrets["commute_mode"],
+            my_gender=secrets.get("my_gender", ""),
+            my_identity=secrets.get("my_identity", ""),
+            skip_districts=list(secrets["skip_districts"]),
+            target_groups=list(secrets["target_groups"]),
+            amap_key=secrets["amap_key"],
+            deepseek_key=secrets.get("deepseek_key", ""),
+            bark_key=secrets["bark_key"],
+            db_key="",
+            wechat_data_dir="",
+        )
 
-    return UserConfig(**data)
+    raise FileNotFoundError(
+        "config.json 未找到，且 Streamlit secrets 未配置。"
+        "请在 Streamlit Cloud Dashboard → Settings → Secrets 中添加配置。"
+    )
 
 
 # ── Init session state ───────────────────────────────────────
@@ -58,9 +85,6 @@ if "core" not in st.session_state:
     try:
         cfg = _load_config()
         st.session_state.core = TutorAssistantCore(config=cfg)
-    except FileNotFoundError:
-        st.error("config.json 未找到。请确保项目根目录有 config.json 文件。")
-        st.stop()
     except Exception as e:
         st.error(f"配置加载失败: {e}")
         st.stop()
