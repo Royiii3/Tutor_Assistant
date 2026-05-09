@@ -123,11 +123,15 @@ with st.sidebar:
 st.title("家教信息筛选系统")
 st.caption("粘贴微信家教群消息 → 自动解析 → 筛选 → 推送到手机")
 
+# Dynamic key to support clearing
+if "clear_counter" not in st.session_state:
+    st.session_state.clear_counter = 0
+
 text_input = st.text_area(
     "粘贴微信消息",
     placeholder="在此粘贴微信家教群聊天记录...\n\n系统会自动拆分多条消息并逐条解析。\n支持混合格式：A杭州家教、欢杭、WY杭州、杭州ZN 等。",
     height=220,
-    key="msg_input",
+    key=f"msg_input_{st.session_state.clear_counter}",
 )
 
 col1, col2, col3 = st.columns([1, 1, 6])
@@ -137,8 +141,8 @@ with col2:
     clear_btn = st.button("清空", use_container_width=True)
 
 if clear_btn:
+    st.session_state.clear_counter += 1
     st.session_state.results = []
-    st.session_state.msg_input = ""
     st.rerun()
 
 # ── Parse logic ──────────────────────────────────────────────
