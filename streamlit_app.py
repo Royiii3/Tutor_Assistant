@@ -110,6 +110,28 @@ with st.sidebar:
 
     st.divider()
 
+    # Bark status
+    st.subheader("推送状态")
+    keys = core.pusher.device_keys
+    if keys:
+        st.success(f"Bark 已配置 ({len(keys)} 个设备)")
+    else:
+        st.error("Bark 未配置")
+        st.caption("请在 Secrets 中设置 bark_key")
+
+    if st.button("🧪 测试推送", use_container_width=True) and keys:
+        import requests as req
+        from urllib.parse import quote
+        try:
+            test_url = f"https://api.day.app/{keys[0]}/{quote('测试消息')}/{quote('如果你看到这条消息，说明推送配置正确！')}"
+            r = req.get(test_url, timeout=10)
+            if r.json().get("code") == 200:
+                st.toast("测试推送成功！请检查手机", icon="✅")
+            else:
+                st.error(f"Bark API 返回: {r.json()}")
+        except Exception as ex:
+            st.error(f"推送失败: {ex}")
+
     # Dev info
     st.caption("Bark 推送: " + ("已配置" if cfg.bark_key else "未配置"))
     if st.session_state.results:
@@ -233,11 +255,14 @@ else:
                 if status != "pushed":
                     push_key = f"push_{i}"
                     if st.button("📲 手动推送", key=push_key):
-                        success = core.pusher.push(job)
-                        if success:
-                            st.toast(f"已推送到手机: {job.address[:20]}...", icon="✅")
-                        else:
-                            st.toast("推送失败，请检查 Bark 配置", icon="❌")
+                        try:
+                            success = core.pusher.push(job)
+                            if success:
+                                st.toast(f"已推送到手机: {job.address[:20]}...", icon="✅")
+                            else:
+                                st.error(f"推送失败：设备密钥={len(core.pusher.device_keys)}个，请确认 Bark key 正确且网络可达 api.day.app")
+                        except Exception as ex:
+                            st.error(f"推送异常: {ex}")
 
             st.divider()
 
