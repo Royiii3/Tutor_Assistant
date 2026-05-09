@@ -124,7 +124,7 @@ with st.sidebar:
         from urllib.parse import quote
         try:
             test_url = f"https://api.day.app/{keys[0]}/{quote('测试消息')}/{quote('如果你看到这条消息，说明推送配置正确！')}"
-            r = req.get(test_url, timeout=10)
+            r = req.get(test_url, timeout=100)
             if r.json().get("code") == 200:
                 st.toast("测试推送成功！请检查手机", icon="✅")
             else:
