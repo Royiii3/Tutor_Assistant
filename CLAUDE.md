@@ -12,9 +12,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 pip install -r requirements.txt
 pytest tests/ -v                          # all tests
 pytest tests/test_parser.py -v            # single test file
-python test_messages.py                   # integration test (hits Amap + Bark)
+python paste.py                           # read clipboard → parse → push (no browser)
+python paste.py file.txt                  # read from file
+python paste.py --no-push                 # parse only, don't push
+python streamlit run streamlit_app.py     # web paste UI (http://localhost:8501)
 python main.py [config.json]              # live DB-polling mode
-streamlit run streamlit_app.py            # web paste UI (http://localhost:8501)
 ```
 
 ## Architecture
@@ -32,7 +34,7 @@ streamlit run streamlit_app.py            # web paste UI (http://localhost:8501)
 - `key_extractor.py` — finds the SQLCipher encryption key from WeChat process memory (pymem) or cached file. Falls back to known derivation methods for older WeChat versions. Key is cached at `~/.wechat_tutor_dbkey`.
 - `db_reader.py` — `WeChatDBReader` connects to the encrypted MsgStorage.db, loads group-name mappings from MicroMsg.db's Contact table, and polls the MSG table for new text messages. Copies the DB to temp when the live file is locked.
 
-**Web interface** (`streamlit_app.py`): Streamlit app for manual paste workflow. Same `TutorAssistantCore` pipeline. Deploy for free on Streamlit Community Cloud (https://share.streamlit.io) — push to GitHub, select repo, done. Secrets managed via Streamlit dashboard. Has manual push button for jobs that didn't auto-match.
+**Paste tools**: `paste.py` (local CLI, reads clipboard) and `streamlit_app.py` (web UI). Both use the same `TutorAssistantCore` pipeline. Same `TutorAssistantCore` pipeline. Deploy for free on Streamlit Community Cloud (https://share.streamlit.io) — push to GitHub, select repo, done. Secrets managed via Streamlit dashboard. Has manual push button for jobs that didn't auto-match.
 
 **Parsing** is two-tier in `parser/parser.py`: `UnifiedParser` (regex rules) runs first, `AIParser` (DeepSeek API) falls back when regex yields nothing. `parse_multiple()` splits bulk text on separator patterns including teacher prefixes (Axxx:), message ID prefixes (WY杭州, 杭州ZN, 欢杭wy), markers (📌🌟♻️), hash tags (#新单, #加急), and numbered entries.
 
