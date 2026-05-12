@@ -35,163 +35,283 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-# ── Global CSS ───────────────────────────────────────────────
+# ── Global CSS — iOS 26 Liquid Glass ─────────────────────────
 st.markdown("""
 <style>
-    /* Hide Streamlit branding */
+    /* ── Reset Streamlit defaults ── */
     #MainMenu, footer, header {visibility: hidden;}
+    .block-container {padding-top: 2rem; max-width: 720px;}
 
-    /* Base font */
+    /* ── Base ── */
     .stApp {
-        font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text",
-                     "Helvetica Neue", "PingFang SC", "Microsoft YaHei",
-                     sans-serif;
+        font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display",
+                     "SF Pro Text", "Helvetica Neue", "PingFang SC",
+                     "Microsoft YaHei", sans-serif;
+        background: linear-gradient(135deg, #f0f4ff 0%, #faf5ff 50%, #fff5f5 100%);
     }
 
-    /* Sidebar */
+    /* ── Sidebar — frosted glass ── */
     [data-testid="stSidebar"] {
-        background: #fafafa;
-        border-right: 1px solid #eee;
-    }
-    [data-testid="stSidebar"] [data-testid="stMarkdown"] h1,
-    [data-testid="stSidebar"] [data-testid="stMarkdown"] h2,
-    [data-testid="stSidebar"] [data-testid="stMarkdown"] h3 {
-        font-size: 14px !important;
-        font-weight: 600 !important;
-        color: #1a1a1a !important;
-        letter-spacing: -0.01em;
+        background: rgba(255, 255, 255, 0.55) !important;
+        backdrop-filter: blur(40px) saturate(180%);
+        -webkit-backdrop-filter: blur(40px) saturate(180%);
+        border-right: 1px solid rgba(255, 255, 255, 0.5) !important;
     }
     [data-testid="stSidebar"] [data-testid="stMarkdown"] p {
         font-size: 13px !important;
-        color: #555 !important;
+        color: #444 !important;
         line-height: 1.6 !important;
     }
 
-    /* Main title */
-    .main-title {
-        font-size: 28px;
-        font-weight: 700;
-        color: #1a1a1a;
-        margin-bottom: 4px;
-        letter-spacing: -0.02em;
+    /* ── Glass card ── */
+    .glass {
+        background: rgba(255, 255, 255, 0.45);
+        backdrop-filter: blur(30px) saturate(150%);
+        -webkit-backdrop-filter: blur(30px) saturate(150%);
+        border: 1px solid rgba(255, 255, 255, 0.6);
+        border-radius: 20px;
+        padding: 24px;
+        margin-bottom: 16px;
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04),
+                    0 1px 2px rgba(0, 0, 0, 0.02);
     }
-    .main-subtitle {
-        font-size: 14px;
-        color: #888;
-        margin-bottom: 24px;
+    .glass-sm {
+        background: rgba(255, 255, 255, 0.4);
+        backdrop-filter: blur(20px) saturate(150%);
+        -webkit-backdrop-filter: blur(20px) saturate(150%);
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        border-radius: 16px;
+        padding: 16px 20px;
+        margin-bottom: 12px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.03);
     }
 
-    /* Stat cards */
-    .stat-card {
-        padding: 16px;
-        border-radius: 12px;
-        text-align: center;
-        margin-bottom: 8px;
+    /* ── Title ── */
+    .hero-title {
+        font-size: 34px;
+        font-weight: 700;
+        color: #1a1a2e;
+        letter-spacing: -0.03em;
+        line-height: 1.1;
+        margin-bottom: 6px;
     }
-    .stat-num {
-        font-size: 28px;
+    .hero-sub {
+        font-size: 15px;
+        color: #8e8ea0;
+        font-weight: 400;
+        margin-bottom: 28px;
+    }
+
+    /* ── Stat pill ── */
+    .stat-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 18px;
+        border-radius: 14px;
+        margin-right: 8px;
+        margin-bottom: 8px;
+        font-size: 14px;
+        font-weight: 600;
+    }
+    .stat-pill .num {
+        font-size: 22px;
         font-weight: 700;
         line-height: 1;
     }
-    .stat-label {
-        font-size: 12px;
-        margin-top: 4px;
-        opacity: 0.7;
-    }
 
-    /* Job card */
+    /* ── Job card ── */
     .job-card {
-        background: #fff;
-        border: 1px solid #e8e8e8;
-        border-radius: 12px;
-        padding: 20px;
-        margin-bottom: 12px;
-        transition: box-shadow 0.15s ease;
+        background: rgba(255, 255, 255, 0.5);
+        backdrop-filter: blur(24px) saturate(160%);
+        -webkit-backdrop-filter: blur(24px) saturate(160%);
+        border: 1px solid rgba(255, 255, 255, 0.55);
+        border-radius: 18px;
+        padding: 20px 22px;
+        margin-bottom: 14px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04),
+                    0 1px 3px rgba(0, 0, 0, 0.02);
+        transition: box-shadow 0.2s ease, transform 0.2s ease;
     }
     .job-card:hover {
-        box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.07),
+                    0 2px 6px rgba(0, 0, 0, 0.03);
+        transform: translateY(-1px);
     }
-    .job-header {
+
+    .job-top {
         display: flex;
         align-items: center;
-        gap: 10px;
-        margin-bottom: 12px;
+        gap: 12px;
+        margin-bottom: 14px;
     }
     .job-num {
-        width: 28px;
-        height: 28px;
-        border-radius: 8px;
+        width: 30px;
+        height: 30px;
+        border-radius: 10px;
         display: flex;
         align-items: center;
         justify-content: center;
         font-size: 13px;
-        font-weight: 600;
+        font-weight: 700;
         flex-shrink: 0;
-    }
-    .job-title {
-        font-size: 16px;
-        font-weight: 600;
-        color: #1a1a1a;
-    }
-    .job-badge {
-        display: inline-block;
-        padding: 2px 10px;
-        border-radius: 6px;
-        font-size: 12px;
-        font-weight: 500;
-        margin-left: auto;
-        flex-shrink: 0;
-    }
-    .badge-pushed    { background: #e8f5e9; color: #2e7d32; }
-    .badge-skipped   { background: #fff3e0; color: #e65100; }
-    .badge-mismatch  { background: #f5f5f5; color: #757575; }
-    .badge-too_far   { background: #fce4ec; color: #c62828; }
-    .badge-push_fail { background: #fce4ec; color: #c62828; }
-
-    .job-details {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 6px 24px;
-        font-size: 13px;
+        background: rgba(0, 0, 0, 0.04);
         color: #555;
     }
-    .job-details span {
-        line-height: 1.8;
+    .job-name {
+        font-size: 16px;
+        font-weight: 600;
+        color: #1a1a2e;
+        flex: 1;
     }
-    .detail-label {
-        color: #999;
-        margin-right: 6px;
-    }
-    .job-reason {
+    .job-tag {
+        padding: 3px 12px;
+        border-radius: 8px;
         font-size: 12px;
-        color: #999;
+        font-weight: 500;
+        flex-shrink: 0;
+    }
+    .tag-pushed    { background: rgba(52, 199, 89, 0.12);  color: #1b8a3e; }
+    .tag-skipped   { background: rgba(255, 149, 0, 0.12);  color: #c27600; }
+    .tag-mismatch  { background: rgba(0, 0, 0, 0.05);     color: #888;    }
+    .tag-too_far   { background: rgba(255, 59, 48, 0.10);  color: #c0392b; }
+    .tag-push_fail { background: rgba(255, 59, 48, 0.10);  color: #c0392b; }
+
+    .job-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 4px 20px;
+        font-size: 13px;
+        color: #555;
+        line-height: 2;
+    }
+    .job-grid .lbl {
+        color: #aaa;
+        font-size: 12px;
+    }
+    .job-note {
+        font-size: 12px;
+        color: #b0b0b0;
         margin-top: 10px;
         padding-top: 10px;
-        border-top: 1px solid #f0f0f0;
+        border-top: 1px solid rgba(0,0,0,0.04);
     }
 
-    /* Empty state */
-    .empty-state {
-        text-align: center;
-        padding: 60px 20px;
-        color: #bbb;
+    /* ── Sidebar glass items ── */
+    .sb-item {
+        background: rgba(255,255,255,0.5);
+        border-radius: 14px;
+        padding: 14px 16px;
+        margin-bottom: 10px;
+        border: 1px solid rgba(255,255,255,0.5);
     }
-    .empty-icon {
-        font-size: 48px;
-        margin-bottom: 12px;
-    }
-    .empty-text {
-        font-size: 14px;
-    }
-
-    /* Section header */
-    .section-header {
-        font-size: 13px;
-        font-weight: 600;
-        color: #999;
+    .sb-label {
+        font-size: 11px;
         text-transform: uppercase;
-        letter-spacing: 0.08em;
-        margin: 24px 0 12px 0;
+        letter-spacing: 0.06em;
+        color: #aaa;
+        margin-bottom: 4px;
+    }
+    .sb-value {
+        font-size: 14px;
+        font-weight: 600;
+        color: #333;
+    }
+    .sb-row {
+        display: flex;
+        gap: 10px;
+    }
+    .sb-row .sb-item { flex: 1; }
+
+    /* ── Empty state ── */
+    .empty-wrap {
+        text-align: center;
+        padding: 48px 20px;
+    }
+    .empty-circle {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.5);
+        backdrop-filter: blur(20px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 16px;
+        font-size: 36px;
+    }
+    .empty-msg {
+        font-size: 15px;
+        color: #b0b0b0;
+    }
+
+    /* ── Section label ── */
+    .sec-label {
+        font-size: 12px;
+        font-weight: 600;
+        color: #b0b0b0;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin: 28px 0 14px 4px;
+    }
+
+    /* ── Buttons — rounded, iOS style ── */
+    .stButton > button {
+        border-radius: 14px !important;
+        font-weight: 600 !important;
+        font-size: 14px !important;
+        padding: 10px 24px !important;
+        border: none !important;
+        transition: all 0.15s ease !important;
+    }
+    .stButton > button[kind="primary"] {
+        background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%) !important;
+        color: white !important;
+        box-shadow: 0 4px 16px rgba(99, 102, 241, 0.3) !important;
+    }
+    .stButton > button[kind="primary"]:hover {
+        transform: translateY(-1px) !important;
+        box-shadow: 0 6px 24px rgba(99, 102, 241, 0.4) !important;
+    }
+    .stButton > button[kind="secondary"] {
+        background: rgba(255,255,255,0.6) !important;
+        color: #555 !important;
+        backdrop-filter: blur(10px) !important;
+        border: 1px solid rgba(0,0,0,0.06) !important;
+    }
+
+    /* ── Textarea — glass style ── */
+    .stTextArea textarea {
+        border-radius: 16px !important;
+        border: 1px solid rgba(0,0,0,0.06) !important;
+        background: rgba(255,255,255,0.5) !important;
+        backdrop-filter: blur(10px) !important;
+        font-size: 14px !important;
+        padding: 14px 16px !important;
+    }
+    .stTextArea textarea:focus {
+        border-color: rgba(99, 102, 241, 0.4) !important;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1) !important;
+    }
+
+    /* ── Spinner ── */
+    .stSpinner > div {
+        border-top-color: #6366f1 !important;
+    }
+
+    /* ── Divider ── */
+    hr {
+        border: none !important;
+        border-top: 1px solid rgba(0,0,0,0.05) !important;
+        margin: 8px 0 !important;
+    }
+
+    /* ── Sidebar title ── */
+    [data-testid="stSidebar"] h3 {
+        font-size: 15px !important;
+        font-weight: 700 !important;
+        color: #1a1a2e !important;
+        margin-bottom: 4px !important;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -211,38 +331,27 @@ def _load_config():
         return UserConfig(**data)
 
     if hasattr(st, "secrets") and st.secrets:
-        secrets = dict(st.secrets)
+        s = dict(st.secrets)
         return UserConfig(
-            my_address=secrets["my_address"],
-            my_coords=list(secrets["my_coords"]),
-            min_salary=int(secrets["min_salary"]),
-            subjects=list(secrets["subjects"]),
-            grades=list(secrets["grades"]),
-            max_commute_time=int(secrets["max_commute_time"]),
-            commute_mode=secrets["commute_mode"],
-            my_gender=secrets.get("my_gender", ""),
-            my_identity=secrets.get("my_identity", ""),
-            skip_districts=list(secrets["skip_districts"]),
-            target_groups=list(secrets["target_groups"]),
-            amap_key=secrets["amap_key"],
-            deepseek_key=secrets.get("deepseek_key", ""),
-            bark_key=secrets["bark_key"],
-            db_key="",
-            wechat_data_dir="",
+            my_address=s["my_address"], my_coords=list(s["my_coords"]),
+            min_salary=int(s["min_salary"]), subjects=list(s["subjects"]),
+            grades=list(s["grades"]), max_commute_time=int(s["max_commute_time"]),
+            commute_mode=s["commute_mode"], my_gender=s.get("my_gender", ""),
+            my_identity=s.get("my_identity", ""), skip_districts=list(s["skip_districts"]),
+            target_groups=list(s["target_groups"]), amap_key=s["amap_key"],
+            deepseek_key=s.get("deepseek_key", ""), bark_key=s["bark_key"],
+            db_key="", wechat_data_dir="",
         )
 
-    raise FileNotFoundError(
-        "config.json 未找到，且 Streamlit secrets 未配置。"
-    )
+    raise FileNotFoundError("配置未加载")
 
 
-# ── Init session state ───────────────────────────────────────
+# ── Init ─────────────────────────────────────────────────────
 if "results" not in st.session_state:
     st.session_state.results = []
 if "core" not in st.session_state:
     try:
-        cfg = _load_config()
-        st.session_state.core = TutorAssistantCore(config=cfg)
+        st.session_state.core = TutorAssistantCore(config=_load_config())
     except Exception as e:
         st.error(f"配置加载失败: {e}")
         st.stop()
@@ -257,58 +366,76 @@ core = get_core()
 cfg = core.config
 
 with st.sidebar:
-    st.markdown("###  ")
-    st.markdown(f"**{cfg.my_address}**")
+    st.markdown("###  家教筛选")
+
+    st.markdown(
+        f'<div class="sb-item">'
+        f'<div class="sb-label">我的位置</div>'
+        f'<div class="sb-value">{cfg.my_address}</div>'
+        f'</div>',
+        unsafe_allow_html=True,
+    )
+
+    st.markdown(
+        f'<div class="sb-row">'
+        f'<div class="sb-item"><div class="sb-label">最低时薪</div>'
+        f'<div class="sb-value">{cfg.min_salary} 元</div></div>'
+        f'<div class="sb-item"><div class="sb-label">通勤上限</div>'
+        f'<div class="sb-value">{cfg.max_commute_time} min</div></div>'
+        f'</div>',
+        unsafe_allow_html=True,
+    )
+
+    st.markdown(
+        f'<div class="sb-item">'
+        f'<div class="sb-label">目标年级</div>'
+        f'<div class="sb-value">{"、".join(cfg.grades)}</div>'
+        f'</div>',
+        unsafe_allow_html=True,
+    )
+
+    st.markdown(
+        f'<div class="sb-item">'
+        f'<div class="sb-label">目标科目</div>'
+        f'<div class="sb-value">{"、".join(cfg.subjects)}</div>'
+        f'</div>',
+        unsafe_allow_html=True,
+    )
+
+    st.markdown(
+        f'<div class="sb-item">'
+        f'<div class="sb-label">跳过区域</div>'
+        f'<div class="sb-value" style="font-size:12px">{"、".join(cfg.skip_districts)}</div>'
+        f'</div>',
+        unsafe_allow_html=True,
+    )
 
     st.markdown("---")
 
-    st.markdown("####  筛选规则")
-    col_a, col_b = st.columns(2)
-    with col_a:
-        st.markdown(f"**{cfg.min_salary}元+**")
-        st.caption("最低时薪")
-    with col_b:
-        st.markdown(f"**≤{cfg.max_commute_time}min**")
-        st.caption(f"{cfg.commute_mode}")
-
-    st.markdown(f"**{'、'.join(cfg.grades)}**")
-    st.caption("目标年级")
-
-    st.markdown(f"**{'、'.join(cfg.subjects[:4])}{'等' if len(cfg.subjects) > 4 else ''}**")
-    st.caption("目标科目")
-
-    st.markdown("---")
-
-    st.markdown("####  推送通道")
     keys = core.pusher.device_keys
-    if keys:
-        st.markdown(f"Bark · {len(keys)} 台设备")
-        if st.button("发送测试通知", use_container_width=True, key="test_bark"):
-            import requests as req
-            from urllib.parse import quote
-            try:
-                url = f"https://api.day.app/{keys[0]}/{quote('测试')}/{quote('收到即配置成功')}"
-                r = req.get(url, timeout=100)
-                if r.json().get("code") == 200:
-                    st.toast("已发送，请查看手机")
-                else:
-                    st.toast(f"返回异常: {r.json()}")
-            except Exception as ex:
-                st.toast(f"发送失败: {ex}")
-    else:
-        st.markdown("<span style='color:#c62828'>未配置</span>", unsafe_allow_html=True)
-        st.caption("在 Secrets 中设置 bark_key")
+    push_status = f"{len(keys)} 台设备" if keys else "未配置"
+    push_color = "#1b8a3e" if keys else "#c0392b"
+    st.markdown(
+        f'<div class="sb-item">'
+        f'<div class="sb-label">推送通道（终端使用）</div>'
+        f'<div class="sb-value" style="color:{push_color}">Bark · {push_status}</div>'
+        f'</div>',
+        unsafe_allow_html=True,
+    )
 
     st.markdown("---")
-    st.markdown(f"<div style='font-size:11px;color:#ccc'>Streamlit Cloud · 手动粘贴模式</div>",
-                unsafe_allow_html=True)
+    st.markdown(
+        "<div style='text-align:center;font-size:11px;color:#ccc;padding:8px 0'>"
+        "Streamlit Cloud · 仅解析模式</div>",
+        unsafe_allow_html=True,
+    )
 
 
-# ── Main area ────────────────────────────────────────────────
-st.markdown('<div class="main-title">家教筛选</div>', unsafe_allow_html=True)
-st.markdown('<div class="main-subtitle">粘贴群消息，自动解析匹配，一键推送到手机</div>', unsafe_allow_html=True)
+# ── Main ─────────────────────────────────────────────────────
+st.markdown('<div class="hero-title">家教筛选</div>', unsafe_allow_html=True)
+st.markdown('<div class="hero-sub">粘贴群消息 · 自动拆分解析 · 匹配筛选</div>', unsafe_allow_html=True)
 
-# Input area
+# Input
 if "clear_counter" not in st.session_state:
     st.session_state.clear_counter = 0
 
@@ -320,10 +447,10 @@ text_input = st.text_area(
     label_visibility="collapsed",
 )
 
-col_btn1, col_btn2, col_spacer = st.columns([1, 1, 4])
-with col_btn1:
+c1, c2, _ = st.columns([1, 1, 4])
+with c1:
     parse_btn = st.button("开始解析", type="primary", use_container_width=True)
-with col_btn2:
+with c2:
     clear_btn = st.button("清空", use_container_width=True)
 
 if clear_btn:
@@ -331,9 +458,9 @@ if clear_btn:
     st.session_state.results = []
     st.rerun()
 
-# ── Parse ────────────────────────────────────────────────────
+# Parse
 if parse_btn and text_input.strip():
-    with st.spinner("正在解析..."):
+    with st.spinner("解析中..."):
         st.session_state.results = core.process_text(text_input)
 
 # ── Results ──────────────────────────────────────────────────
@@ -341,48 +468,43 @@ results = st.session_state.results
 
 if not results:
     st.markdown(
-        '<div class="empty-state">'
-        '<div class="empty-icon"> </div>'
-        '<div class="empty-text">粘贴家教消息后点击「开始解析」</div>'
+        '<div class="empty-wrap">'
+        '<div class="empty-circle"> </div>'
+        '<div class="empty-msg">粘贴家教消息后点击「开始解析」</div>'
         '</div>',
         unsafe_allow_html=True,
     )
 else:
-    # Stats
     stats = {}
     for r in results:
         stats[r.status] = stats.get(r.status, 0) + 1
 
-    status_cfg = {
-        "pushed":      ("  已推送",   "#e8f5e9", "#2e7d32"),
-        "skipped":     ("  跳过",     "#fff3e0", "#e65100"),
-        "mismatch":    ("  不符",     "#f5f5f5", "#757575"),
-        "too_far":     ("  太远",     "#fce4ec", "#c62828"),
-        "push_failed": ("  失败", "#fce4ec", "#c62828"),
+    tag_cfg = {
+        "pushed":      ("已推送",   "tag-pushed",   "rgba(52,199,89,0.10)"),
+        "skipped":     ("已跳过",   "tag-skipped",  "rgba(255,149,0,0.10)"),
+        "mismatch":    ("条件不符", "tag-mismatch", "rgba(0,0,0,0.04)"),
+        "too_far":     ("通勤太远", "tag-too_far",  "rgba(255,59,48,0.08)"),
+        "push_failed": ("推送失败", "tag-push_fail","rgba(255,59,48,0.08)"),
     }
 
-    st.markdown('<div class="section-header">解析结果</div>', unsafe_allow_html=True)
-
-    stat_cols = st.columns(len(stats) if stats else 1)
-    for i, (status, count) in enumerate(stats.items()):
-        label, bg, fg = status_cfg.get(status, ("", "#f5f5f5", "#999"))
-        with stat_cols[i]:
-            st.markdown(
-                f'<div class="stat-card" style="background:{bg}">'
-                f'<div class="stat-num" style="color:{fg}">{count}</div>'
-                f'<div class="stat-label" style="color:{fg}">{label}</div>'
-                f'</div>',
-                unsafe_allow_html=True,
-            )
-
-    st.markdown('<div class="section-header">详细信息</div>', unsafe_allow_html=True)
+    # Stat pills
+    st.markdown('<div class="sec-label">统计</div>', unsafe_allow_html=True)
+    pills = ""
+    for status, count in stats.items():
+        label, _, bg = tag_cfg.get(status, ("", "", "rgba(0,0,0,0.04)"))
+        pills += (
+            f'<span class="stat-pill" style="background:{bg}">'
+            f'<span class="num">{count}</span>{label}</span>'
+        )
+    st.markdown(pills, unsafe_allow_html=True)
 
     # Job cards
+    st.markdown('<div class="sec-label">详情</div>', unsafe_allow_html=True)
+
     for i, r in enumerate(results):
         job = r.job
         status = r.status
-        label, _, _ = status_cfg.get(status, ("", "", ""))
-        badge_cls = f"badge-{status}"
+        tag_label, tag_cls, _ = tag_cfg.get(status, ("", "", ""))
 
         title_parts = []
         if job.subjects:
@@ -391,67 +513,45 @@ else:
             title_parts.append(job.grade)
         title = " · ".join(title_parts) if title_parts else "未分类"
 
-        # Build details grid
-        details = []
+        grid = []
         if job.address:
-            details.append(f'<span><span class="detail-label">地址</span>{job.address}</span>')
+            grid.append(f'<span><span class="lbl">地址</span>{job.address}</span>')
         if job.salary:
             s = f'{job.salary}'
             if job.salary_max:
                 s += f'-{job.salary_max}'
-            s += ' 元/h'
-            details.append(f'<span><span class="detail-label">薪资</span>{s}</span>')
+            grid.append(f'<span><span class="lbl">薪资</span>{s} 元/h</span>')
         if job.commute_time:
             c = f'约 {job.commute_time} 分钟'
             if job.commute_distance:
                 c += f'（{job.commute_distance:.1f} km）'
-            details.append(f'<span><span class="detail-label">通勤</span>{c}</span>')
+            grid.append(f'<span><span class="lbl">通勤</span>{c}</span>')
         if job.time_requirement:
-            details.append(f'<span><span class="detail-label">时间</span>{job.time_requirement}</span>')
+            grid.append(f'<span><span class="lbl">时间</span>{job.time_requirement}</span>')
 
-        details_html = "\n".join(details)
-        reason_html = ""
+        grid_html = "\n".join(grid)
+        note_html = ""
         if r.reason:
-            reason_html = f'<div class="job-reason">{r.reason}</div>'
-
-        # Push button
-        push_html = ""
-        if status not in ("pushed",):
-            push_html = f'<div style="margin-top:12px"><a href="#" style="font-size:13px;color:#1976d2;text-decoration:none">  手动推送</a></div>'
+            note_html = f'<div class="job-note">{r.reason}</div>'
 
         st.markdown(
             f'<div class="job-card">'
-            f'<div class="job-header">'
-            f'<div class="job-num" style="background:#f5f5f5;color:#666">{i+1}</div>'
-            f'<div class="job-title">{title}</div>'
-            f'<span class="job-badge {badge_cls}">{label}</span>'
+            f'<div class="job-top">'
+            f'<div class="job-num">{i+1}</div>'
+            f'<div class="job-name">{title}</div>'
+            f'<span class="job-tag {tag_cls}">{tag_label}</span>'
             f'</div>'
-            f'<div class="job-details">{details_html}</div>'
-            f'{reason_html}'
+            f'<div class="job-grid">{grid_html}</div>'
+            f'{note_html}'
             f'</div>',
             unsafe_allow_html=True,
         )
 
-        # Push button (real Streamlit button under the card)
-        if status not in ("pushed",):
-            if st.button("  推送到手机", key=f"push_{i}", type="secondary"):
-                try:
-                    if core.pusher.push(job):
-                        st.toast(f"已推送: {job.address[:20]}...")
-                    else:
-                        st.toast("推送失败，请检查 Bark 配置")
-                except Exception as ex:
-                    st.toast(f"异常: {ex}")
-
-        # Small spacer between cards
-        st.markdown("<div style='height:4px'></div>", unsafe_allow_html=True)
-
-    # Summary footer
+    # Summary
     total = len(results)
     pushed_n = stats.get("pushed", 0)
-    if pushed_n > 0:
-        st.markdown(
-            f"<div style='text-align:center;color:#888;font-size:12px;margin-top:20px'>"
-            f"共 {total} 条 · 已推送 {pushed_n} 条</div>",
-            unsafe_allow_html=True,
-        )
+    st.markdown(
+        f"<div style='text-align:center;color:#c0c0c0;font-size:12px;margin-top:16px'>"
+        f"共 {total} 条 · 已推送 {pushed_n} 条 · 推送请使用终端 python paste.py</div>",
+        unsafe_allow_html=True,
+    )
