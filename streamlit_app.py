@@ -10,11 +10,6 @@ Deploy for free on Streamlit Community Cloud:
     3. Connect GitHub repo, set main file: streamlit_app.py
     4. Add secrets in the dashboard (see .streamlit/secrets.example.toml)
     5. Deploy — free HTTPS URL, accessible from China
-
-Security note:
-    config.json contains API keys — DO NOT commit it to a public repo.
-    Use Streamlit secrets for cloud deployment instead.
-    For local use, config.json works normally.
 """
 
 import json
@@ -35,284 +30,253 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-# ── Global CSS — iOS 26 Liquid Glass ─────────────────────────
+# ── CSS ──────────────────────────────────────────────────────
 st.markdown("""
 <style>
-    /* ── Reset Streamlit defaults ── */
-    #MainMenu, footer, header {visibility: hidden;}
-    .block-container {padding-top: 2rem; max-width: 720px;}
+/* Hide only Streamlit branding, NOT the header (sidebar toggle lives there) */
+#MainMenu {visibility: hidden;}
+footer {visibility: hidden;}
+[data-testid="stStatusWidget"] {visibility: hidden;}
 
-    /* ── Base ── */
-    .stApp {
-        font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display",
-                     "SF Pro Text", "Helvetica Neue", "PingFang SC",
-                     "Microsoft YaHei", sans-serif;
-        background: linear-gradient(135deg, #f0f4ff 0%, #faf5ff 50%, #fff5f5 100%);
-    }
+/* Base */
+.stApp {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display",
+                 "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: #f2f2f7;
+}
 
-    /* ── Sidebar — frosted glass ── */
-    [data-testid="stSidebar"] {
-        background: rgba(255, 255, 255, 0.55) !important;
-        backdrop-filter: blur(40px) saturate(180%);
-        -webkit-backdrop-filter: blur(40px) saturate(180%);
-        border-right: 1px solid rgba(255, 255, 255, 0.5) !important;
-    }
-    [data-testid="stSidebar"] [data-testid="stMarkdown"] p {
-        font-size: 13px !important;
-        color: #444 !important;
-        line-height: 1.6 !important;
-    }
+/* Main container */
+.block-container {
+    max-width: 680px;
+    padding-top: 1.5rem;
+    padding-bottom: 2rem;
+}
 
-    /* ── Glass card ── */
-    .glass {
-        background: rgba(255, 255, 255, 0.45);
-        backdrop-filter: blur(30px) saturate(150%);
-        -webkit-backdrop-filter: blur(30px) saturate(150%);
-        border: 1px solid rgba(255, 255, 255, 0.6);
-        border-radius: 20px;
-        padding: 24px;
-        margin-bottom: 16px;
-        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04),
-                    0 1px 2px rgba(0, 0, 0, 0.02);
-    }
-    .glass-sm {
-        background: rgba(255, 255, 255, 0.4);
-        backdrop-filter: blur(20px) saturate(150%);
-        -webkit-backdrop-filter: blur(20px) saturate(150%);
-        border: 1px solid rgba(255, 255, 255, 0.5);
-        border-radius: 16px;
-        padding: 16px 20px;
-        margin-bottom: 12px;
-        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.03);
-    }
+/* ── Sidebar ── */
+[data-testid="stSidebar"] {
+    background: #fff;
+    border-right: 1px solid #e5e5ea;
+}
+[data-testid="stSidebar"] .block-container {
+    padding-top: 1.5rem;
+}
 
-    /* ── Title ── */
-    .hero-title {
-        font-size: 34px;
-        font-weight: 700;
-        color: #1a1a2e;
-        letter-spacing: -0.03em;
-        line-height: 1.1;
-        margin-bottom: 6px;
-    }
-    .hero-sub {
-        font-size: 15px;
-        color: #8e8ea0;
-        font-weight: 400;
-        margin-bottom: 28px;
-    }
+/* ── Cards ── */
+.card {
+    background: #fff;
+    border-radius: 14px;
+    padding: 18px 20px;
+    margin-bottom: 10px;
+    border: 1px solid #e5e5ea;
+}
+.card-sm {
+    background: #f9f9fb;
+    border-radius: 12px;
+    padding: 12px 16px;
+    margin-bottom: 8px;
+    border: 1px solid #ebebf0;
+}
 
-    /* ── Stat pill ── */
-    .stat-pill {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        padding: 10px 18px;
-        border-radius: 14px;
-        margin-right: 8px;
-        margin-bottom: 8px;
-        font-size: 14px;
-        font-weight: 600;
-    }
-    .stat-pill .num {
-        font-size: 22px;
-        font-weight: 700;
-        line-height: 1;
-    }
+/* ── Hero ── */
+.hero {
+    margin-bottom: 24px;
+}
+.hero h1 {
+    font-size: 26px;
+    font-weight: 700;
+    color: #1c1c1e;
+    letter-spacing: -0.02em;
+    margin: 0;
+    line-height: 1.2;
+}
+.hero p {
+    font-size: 14px;
+    color: #8e8e93;
+    margin: 4px 0 0 0;
+}
 
-    /* ── Job card ── */
-    .job-card {
-        background: rgba(255, 255, 255, 0.5);
-        backdrop-filter: blur(24px) saturate(160%);
-        -webkit-backdrop-filter: blur(24px) saturate(160%);
-        border: 1px solid rgba(255, 255, 255, 0.55);
-        border-radius: 18px;
-        padding: 20px 22px;
-        margin-bottom: 14px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04),
-                    0 1px 3px rgba(0, 0, 0, 0.02);
-        transition: box-shadow 0.2s ease, transform 0.2s ease;
-    }
-    .job-card:hover {
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.07),
-                    0 2px 6px rgba(0, 0, 0, 0.03);
-        transform: translateY(-1px);
-    }
+/* ── Stat pills ── */
+.stat-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+.stat-pill {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 500;
+}
+.stat-pill .n {
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1;
+}
 
-    .job-top {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        margin-bottom: 14px;
-    }
-    .job-num {
-        width: 30px;
-        height: 30px;
-        border-radius: 10px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 13px;
-        font-weight: 700;
-        flex-shrink: 0;
-        background: rgba(0, 0, 0, 0.04);
-        color: #555;
-    }
-    .job-name {
-        font-size: 16px;
-        font-weight: 600;
-        color: #1a1a2e;
-        flex: 1;
-    }
-    .job-tag {
-        padding: 3px 12px;
-        border-radius: 8px;
-        font-size: 12px;
-        font-weight: 500;
-        flex-shrink: 0;
-    }
-    .tag-pushed    { background: rgba(52, 199, 89, 0.12);  color: #1b8a3e; }
-    .tag-skipped   { background: rgba(255, 149, 0, 0.12);  color: #c27600; }
-    .tag-mismatch  { background: rgba(0, 0, 0, 0.05);     color: #888;    }
-    .tag-too_far   { background: rgba(255, 59, 48, 0.10);  color: #c0392b; }
-    .tag-push_fail { background: rgba(255, 59, 48, 0.10);  color: #c0392b; }
+/* ── Job cards ── */
+.job {
+    background: #fff;
+    border-radius: 14px;
+    padding: 18px 20px;
+    margin-bottom: 10px;
+    border: 1px solid #e5e5ea;
+}
+.job-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+.job-idx {
+    width: 26px;
+    height: 26px;
+    border-radius: 8px;
+    background: #f2f2f7;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    color: #636366;
+    flex-shrink: 0;
+}
+.job-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: #1c1c1e;
+    flex: 1;
+    min-width: 0;
+}
+.tag {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+.tag-pushed    { background: #d4edda; color: #155724; }
+.tag-skipped   { background: #fff3cd; color: #856404; }
+.tag-mismatch  { background: #e9ecef; color: #6c757d; }
+.tag-too_far   { background: #f8d7da; color: #721c24; }
+.tag-push_fail { background: #f8d7da; color: #721c24; }
 
-    .job-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 4px 20px;
-        font-size: 13px;
-        color: #555;
-        line-height: 2;
-    }
-    .job-grid .lbl {
-        color: #aaa;
-        font-size: 12px;
-    }
-    .job-note {
-        font-size: 12px;
-        color: #b0b0b0;
-        margin-top: 10px;
-        padding-top: 10px;
-        border-top: 1px solid rgba(0,0,0,0.04);
-    }
+.info-grid {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 2px 10px;
+    font-size: 13px;
+    line-height: 1.9;
+}
+.info-grid .k {
+    color: #8e8e93;
+    white-space: nowrap;
+}
+.info-grid .v {
+    color: #3a3a3c;
+}
+.job-note {
+    font-size: 12px;
+    color: #aeaeb2;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid #f2f2f7;
+}
 
-    /* ── Sidebar glass items ── */
-    .sb-item {
-        background: rgba(255,255,255,0.5);
-        border-radius: 14px;
-        padding: 14px 16px;
-        margin-bottom: 10px;
-        border: 1px solid rgba(255,255,255,0.5);
-    }
-    .sb-label {
-        font-size: 11px;
-        text-transform: uppercase;
-        letter-spacing: 0.06em;
-        color: #aaa;
-        margin-bottom: 4px;
-    }
-    .sb-value {
-        font-size: 14px;
-        font-weight: 600;
-        color: #333;
-    }
-    .sb-row {
-        display: flex;
-        gap: 10px;
-    }
-    .sb-row .sb-item { flex: 1; }
+/* ── Empty state ── */
+.empty {
+    text-align: center;
+    padding: 56px 20px;
+}
+.empty-icon {
+    font-size: 40px;
+    margin-bottom: 10px;
+}
+.empty-text {
+    font-size: 14px;
+    color: #aeaeb2;
+}
 
-    /* ── Empty state ── */
-    .empty-wrap {
-        text-align: center;
-        padding: 48px 20px;
-    }
-    .empty-circle {
-        width: 80px;
-        height: 80px;
-        border-radius: 50%;
-        background: rgba(255,255,255,0.5);
-        backdrop-filter: blur(20px);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto 16px;
-        font-size: 36px;
-    }
-    .empty-msg {
-        font-size: 15px;
-        color: #b0b0b0;
-    }
+/* ── Section title ── */
+.sec-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: #aeaeb2;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin: 24px 0 10px 2px;
+}
 
-    /* ── Section label ── */
-    .sec-label {
-        font-size: 12px;
-        font-weight: 600;
-        color: #b0b0b0;
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        margin: 28px 0 14px 4px;
-    }
+/* ── Buttons ── */
+.stButton > button {
+    border-radius: 10px !important;
+    font-weight: 600 !important;
+    font-size: 14px !important;
+    padding: 8px 16px !important;
+    border: none !important;
+    height: auto !important;
+    min-height: 38px !important;
+    transition: all 0.12s ease !important;
+}
+.stButton > button[kind="primary"] {
+    background: #007aff !important;
+    color: #fff !important;
+}
+.stButton > button[kind="primary"]:active {
+    background: #0056b3 !important;
+    transform: scale(0.98);
+}
+.stButton > button[kind="secondary"] {
+    background: #f2f2f7 !important;
+    color: #3a3a3c !important;
+    border: 1px solid #d1d1d6 !important;
+}
+.stButton > button[kind="secondary"]:active {
+    background: #e5e5ea !important;
+    transform: scale(0.98);
+}
 
-    /* ── Buttons — rounded, iOS style ── */
-    .stButton > button {
-        border-radius: 14px !important;
-        font-weight: 600 !important;
-        font-size: 14px !important;
-        padding: 10px 24px !important;
-        border: none !important;
-        transition: all 0.15s ease !important;
-    }
-    .stButton > button[kind="primary"] {
-        background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%) !important;
-        color: white !important;
-        box-shadow: 0 4px 16px rgba(99, 102, 241, 0.3) !important;
-    }
-    .stButton > button[kind="primary"]:hover {
-        transform: translateY(-1px) !important;
-        box-shadow: 0 6px 24px rgba(99, 102, 241, 0.4) !important;
-    }
-    .stButton > button[kind="secondary"] {
-        background: rgba(255,255,255,0.6) !important;
-        color: #555 !important;
-        backdrop-filter: blur(10px) !important;
-        border: 1px solid rgba(0,0,0,0.06) !important;
-    }
+/* ── Textarea ── */
+.stTextArea textarea {
+    border-radius: 12px !important;
+    border: 1px solid #d1d1d6 !important;
+    background: #fff !important;
+    font-size: 14px !important;
+    padding: 12px 14px !important;
+    line-height: 1.6 !important;
+}
+.stTextArea textarea:focus {
+    border-color: #007aff !important;
+    box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.12) !important;
+}
 
-    /* ── Textarea — glass style ── */
-    .stTextArea textarea {
-        border-radius: 16px !important;
-        border: 1px solid rgba(0,0,0,0.06) !important;
-        background: rgba(255,255,255,0.5) !important;
-        backdrop-filter: blur(10px) !important;
-        font-size: 14px !important;
-        padding: 14px 16px !important;
-    }
-    .stTextArea textarea:focus {
-        border-color: rgba(99, 102, 241, 0.4) !important;
-        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1) !important;
-    }
-
-    /* ── Spinner ── */
-    .stSpinner > div {
-        border-top-color: #6366f1 !important;
-    }
-
-    /* ── Divider ── */
-    hr {
-        border: none !important;
-        border-top: 1px solid rgba(0,0,0,0.05) !important;
-        margin: 8px 0 !important;
-    }
-
-    /* ── Sidebar title ── */
-    [data-testid="stSidebar"] h3 {
-        font-size: 15px !important;
-        font-weight: 700 !important;
-        color: #1a1a2e !important;
-        margin-bottom: 4px !important;
-    }
+/* ── Sidebar items ── */
+.sb-block {
+    margin-bottom: 14px;
+}
+.sb-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #aeaeb2;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 3px;
+}
+.sb-value {
+    font-size: 14px;
+    font-weight: 500;
+    color: #1c1c1e;
+    line-height: 1.4;
+}
+.sb-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -366,10 +330,11 @@ core = get_core()
 cfg = core.config
 
 with st.sidebar:
-    st.markdown("###  家教筛选")
+    st.markdown('<div style="font-size:20px;font-weight:700;color:#1c1c1e;margin-bottom:16px">家教筛选</div>',
+                unsafe_allow_html=True)
 
     st.markdown(
-        f'<div class="sb-item">'
+        f'<div class="sb-block">'
         f'<div class="sb-label">我的位置</div>'
         f'<div class="sb-value">{cfg.my_address}</div>'
         f'</div>',
@@ -377,17 +342,15 @@ with st.sidebar:
     )
 
     st.markdown(
-        f'<div class="sb-row">'
-        f'<div class="sb-item"><div class="sb-label">最低时薪</div>'
-        f'<div class="sb-value">{cfg.min_salary} 元</div></div>'
-        f'<div class="sb-item"><div class="sb-label">通勤上限</div>'
-        f'<div class="sb-value">{cfg.max_commute_time} min</div></div>'
+        f'<div class="sb-grid">'
+        f'<div class="sb-block"><div class="sb-label">最低时薪</div><div class="sb-value">{cfg.min_salary} 元</div></div>'
+        f'<div class="sb-block"><div class="sb-label">通勤上限</div><div class="sb-value">{cfg.max_commute_time} 分钟</div></div>'
         f'</div>',
         unsafe_allow_html=True,
     )
 
     st.markdown(
-        f'<div class="sb-item">'
+        f'<div class="sb-block">'
         f'<div class="sb-label">目标年级</div>'
         f'<div class="sb-value">{"、".join(cfg.grades)}</div>'
         f'</div>',
@@ -395,7 +358,7 @@ with st.sidebar:
     )
 
     st.markdown(
-        f'<div class="sb-item">'
+        f'<div class="sb-block">'
         f'<div class="sb-label">目标科目</div>'
         f'<div class="sb-value">{"、".join(cfg.subjects)}</div>'
         f'</div>',
@@ -403,39 +366,43 @@ with st.sidebar:
     )
 
     st.markdown(
-        f'<div class="sb-item">'
+        f'<div class="sb-block">'
         f'<div class="sb-label">跳过区域</div>'
-        f'<div class="sb-value" style="font-size:12px">{"、".join(cfg.skip_districts)}</div>'
+        f'<div class="sb-value" style="font-size:13px">{"、".join(cfg.skip_districts)}</div>'
         f'</div>',
         unsafe_allow_html=True,
     )
 
-    st.markdown("---")
+    st.markdown('<hr style="margin:16px 0;border:none;border-top:1px solid #e5e5ea">', unsafe_allow_html=True)
 
     keys = core.pusher.device_keys
-    push_status = f"{len(keys)} 台设备" if keys else "未配置"
-    push_color = "#1b8a3e" if keys else "#c0392b"
+    push_text = f"Bark · {len(keys)} 台设备" if keys else "未配置"
+    push_color = "#34c759" if keys else "#ff3b30"
     st.markdown(
-        f'<div class="sb-item">'
-        f'<div class="sb-label">推送通道（终端使用）</div>'
-        f'<div class="sb-value" style="color:{push_color}">Bark · {push_status}</div>'
+        f'<div class="sb-block">'
+        f'<div class="sb-label">推送通道（终端）</div>'
+        f'<div class="sb-value" style="color:{push_color}">{push_text}</div>'
         f'</div>',
         unsafe_allow_html=True,
     )
 
-    st.markdown("---")
+    st.markdown('<hr style="margin:16px 0;border:none;border-top:1px solid #e5e5ea">', unsafe_allow_html=True)
     st.markdown(
-        "<div style='text-align:center;font-size:11px;color:#ccc;padding:8px 0'>"
-        "Streamlit Cloud · 仅解析模式</div>",
+        "<div style='text-align:center;font-size:11px;color:#c7c7cc;padding:4px 0'>"
+        "手动粘贴 · 仅解析</div>",
         unsafe_allow_html=True,
     )
 
 
 # ── Main ─────────────────────────────────────────────────────
-st.markdown('<div class="hero-title">家教筛选</div>', unsafe_allow_html=True)
-st.markdown('<div class="hero-sub">粘贴群消息 · 自动拆分解析 · 匹配筛选</div>', unsafe_allow_html=True)
+st.markdown(
+    '<div class="hero">'
+    '<h1>家教筛选</h1>'
+    '<p>粘贴群消息 · 自动拆分解析 · 匹配筛选</p>'
+    '</div>',
+    unsafe_allow_html=True,
+)
 
-# Input
 if "clear_counter" not in st.session_state:
     st.session_state.clear_counter = 0
 
@@ -447,18 +414,17 @@ text_input = st.text_area(
     label_visibility="collapsed",
 )
 
-c1, c2, _ = st.columns([1, 1, 4])
+c1, c2, _ = st.columns([1, 1, 5])
 with c1:
     parse_btn = st.button("开始解析", type="primary", use_container_width=True)
 with c2:
-    clear_btn = st.button("清空", use_container_width=True)
+    clear_btn = st.button("清空", type="secondary", use_container_width=True)
 
 if clear_btn:
     st.session_state.clear_counter += 1
     st.session_state.results = []
     st.rerun()
 
-# Parse
 if parse_btn and text_input.strip():
     with st.spinner("解析中..."):
         st.session_state.results = core.process_text(text_input)
@@ -468,9 +434,9 @@ results = st.session_state.results
 
 if not results:
     st.markdown(
-        '<div class="empty-wrap">'
-        '<div class="empty-circle"> </div>'
-        '<div class="empty-msg">粘贴家教消息后点击「开始解析」</div>'
+        '<div class="empty">'
+        '<div class="empty-icon"> </div>'
+        '<div class="empty-text">粘贴家教消息后点击「开始解析」</div>'
         '</div>',
         unsafe_allow_html=True,
     )
@@ -479,79 +445,79 @@ else:
     for r in results:
         stats[r.status] = stats.get(r.status, 0) + 1
 
-    tag_cfg = {
-        "pushed":      ("已推送",   "tag-pushed",   "rgba(52,199,89,0.10)"),
-        "skipped":     ("已跳过",   "tag-skipped",  "rgba(255,149,0,0.10)"),
-        "mismatch":    ("条件不符", "tag-mismatch", "rgba(0,0,0,0.04)"),
-        "too_far":     ("通勤太远", "tag-too_far",  "rgba(255,59,48,0.08)"),
-        "push_failed": ("推送失败", "tag-push_fail","rgba(255,59,48,0.08)"),
+    tag_info = {
+        "pushed":      ("已推送",   "tag-pushed",   "#d4edda"),
+        "skipped":     ("已跳过",   "tag-skipped",  "#fff3cd"),
+        "mismatch":    ("条件不符", "tag-mismatch", "#e9ecef"),
+        "too_far":     ("通勤太远", "tag-too_far",  "#f8d7da"),
+        "push_failed": ("推送失败", "tag-push_fail","#f8d7da"),
     }
 
-    # Stat pills
-    st.markdown('<div class="sec-label">统计</div>', unsafe_allow_html=True)
-    pills = ""
+    # Stats
+    st.markdown('<div class="sec-title">统计</div>', unsafe_allow_html=True)
+    pills = '<div class="stat-row">'
     for status, count in stats.items():
-        label, _, bg = tag_cfg.get(status, ("", "", "rgba(0,0,0,0.04)"))
-        pills += (
-            f'<span class="stat-pill" style="background:{bg}">'
-            f'<span class="num">{count}</span>{label}</span>'
-        )
+        label, _, bg = tag_info.get(status, ("", "", "#eee"))
+        pills += f'<span class="stat-pill" style="background:{bg}"><span class="n">{count}</span>{label}</span>'
+    pills += '</div>'
     st.markdown(pills, unsafe_allow_html=True)
 
-    # Job cards
-    st.markdown('<div class="sec-label">详情</div>', unsafe_allow_html=True)
+    # Job list
+    st.markdown('<div class="sec-title">详情</div>', unsafe_allow_html=True)
 
     for i, r in enumerate(results):
         job = r.job
         status = r.status
-        tag_label, tag_cls, _ = tag_cfg.get(status, ("", "", ""))
+        tag_label, tag_cls, _ = tag_info.get(status, ("", "", ""))
 
-        title_parts = []
+        parts = []
         if job.subjects:
-            title_parts.append(" ".join(job.subjects))
+            parts.append(" ".join(job.subjects))
         if job.grade:
-            title_parts.append(job.grade)
-        title = " · ".join(title_parts) if title_parts else "未分类"
+            parts.append(job.grade)
+        title = " · ".join(parts) if parts else "未分类"
 
-        grid = []
+        rows = []
         if job.address:
-            grid.append(f'<span><span class="lbl">地址</span>{job.address}</span>')
+            rows.append(("地址", job.address))
         if job.salary:
             s = f'{job.salary}'
             if job.salary_max:
                 s += f'-{job.salary_max}'
-            grid.append(f'<span><span class="lbl">薪资</span>{s} 元/h</span>')
+            rows.append(("薪资", f"{s} 元/h"))
         if job.commute_time:
             c = f'约 {job.commute_time} 分钟'
             if job.commute_distance:
                 c += f'（{job.commute_distance:.1f} km）'
-            grid.append(f'<span><span class="lbl">通勤</span>{c}</span>')
+            rows.append(("通勤", c))
         if job.time_requirement:
-            grid.append(f'<span><span class="lbl">时间</span>{job.time_requirement}</span>')
+            rows.append(("时间", job.time_requirement))
 
-        grid_html = "\n".join(grid)
-        note_html = ""
+        grid = ""
+        for k, v in rows:
+            grid += f'<span class="k">{k}</span><span class="v">{v}</span>'
+
+        note = ""
         if r.reason:
-            note_html = f'<div class="job-note">{r.reason}</div>'
+            note = f'<div class="job-note">{r.reason}</div>'
 
         st.markdown(
-            f'<div class="job-card">'
-            f'<div class="job-top">'
-            f'<div class="job-num">{i+1}</div>'
-            f'<div class="job-name">{title}</div>'
-            f'<span class="job-tag {tag_cls}">{tag_label}</span>'
+            f'<div class="job">'
+            f'<div class="job-head">'
+            f'<div class="job-idx">{i+1}</div>'
+            f'<div class="job-title">{title}</div>'
+            f'<span class="tag {tag_cls}">{tag_label}</span>'
             f'</div>'
-            f'<div class="job-grid">{grid_html}</div>'
-            f'{note_html}'
+            f'<div class="info-grid">{grid}</div>'
+            f'{note}'
             f'</div>',
             unsafe_allow_html=True,
         )
 
-    # Summary
-    total = len(results)
-    pushed_n = stats.get("pushed", 0)
+    n = len(results)
+    pn = stats.get("pushed", 0)
     st.markdown(
-        f"<div style='text-align:center;color:#c0c0c0;font-size:12px;margin-top:16px'>"
-        f"共 {total} 条 · 已推送 {pushed_n} 条 · 推送请使用终端 python paste.py</div>",
+        f"<div style='text-align:center;color:#c7c7cc;font-size:12px;margin-top:12px'>"
+        f"共 {n} 条 · 已推送 {pn} 条 · 推送请使用终端 python paste.py</div>",
         unsafe_allow_html=True,
     )
